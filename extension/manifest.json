@@ -1,0 +1,29 @@
+{
+  "manifest_version": 3,
+  "name": "Speechify-style TTS",
+  "version": "1.0",
+  "description": "Convert selected text to speech with a modern interface",
+  "permissions": [
+    "contextMenus",
+    "storage",
+    "activeTab"
+  ],
+  "host_permissions": [
+    "http://localhost:5000/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"]
+    }
+  ],
+  "action": {
+    "default_icon": {
+      "48": "icon48.png",
+      "128": "icon128.png"
+    }
+  }
+} 
