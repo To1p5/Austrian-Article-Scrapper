@@ -53,6 +53,13 @@ chrome.runtime.onInstalled.addListener(() => {
         title: "Listen with TTS",
         contexts: ["selection"]
     });
+
+    // Add the new menu item for opening popup
+    chrome.contextMenus.create({
+        id: "openPopup",
+        title: "Open TTS Controls",
+        contexts: ["all"]
+    });
 });
 
 chrome.contextMenus.onClicked.addListener((info, tab) => {
@@ -94,6 +101,22 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
             }
         })
         .catch(error => console.error('Error:', error));
+    } else if (info.menuItemId === "openPopup") {
+        // Open popup.html in a new window
+        if (currentPopup) {
+            chrome.windows.remove(currentPopup);
+        }
+        
+        chrome.windows.create({
+            url: 'popup.html',
+            type: 'popup',
+            width: 370,
+            height: 300,
+            left: 100,
+            top: 100
+        }, (window) => {
+            currentPopup = window.id;
+        });
     }
 });
 

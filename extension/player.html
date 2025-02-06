@@ -78,35 +78,86 @@
             <button class="play-button" id="playButton">⏸</button>
             <button class="control-button" onclick="skipForward()">⏭</button>
         </div>
-        <div class="speed-indicator" id="speedButton">2.3x</div>
+        <div class="speed-indicator" id="speedButton">1x</div>
     </div>
 
+    <!-- Add audio element -->
+    <audio id="audioPlayer" hidden></audio>
+
     <script>
+        const audioPlayer = document.getElementById('audioPlayer');
         const playButton = document.getElementById('playButton');
         const speedButton = document.getElementById('speedButton');
-        let isPlaying = true;
-        let currentSpeedIndex = 3;
-        const speeds = [1, 1.5, 2, 2.3, 2.5, 3];
+        let isPlaying = false;
+        let currentSpeed = 1;
+        const speeds = [0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2];
+
+        // Load audio immediately on window open
+        chrome.storage.local.get(['lastAudio'], function(result) {
+            if (result.lastAudio) {
+                audioPlayer.src = result.lastAudio;
+                audioPlayer.play();
+                isPlaying = true;
+                playButton.textContent = '⏸';
+            }
+        });
 
         playButton.addEventListener('click', () => {
+            if (isPlaying) {
+                audioPlayer.pause();
+            } else {
+                audioPlayer.play();
+            }
             isPlaying = !isPlaying;
             playButton.textContent = isPlaying ? '⏸' : '▶';
         });
 
         speedButton.addEventListener('click', () => {
-            currentSpeedIndex = (currentSpeedIndex + 1) % speeds.length;
-            speedButton.textContent = speeds[currentSpeedIndex] + 'x';
+            const currentIndex = speeds.indexOf(currentSpeed);
+            const newIndex = (currentIndex + 1) % speeds.length;
+            currentSpeed = speeds[newIndex];
+            audioPlayer.playbackRate = currentSpeed;
+            speedButton.textContent = `${currentSpeed}x`;
         });
 
         function skipForward() {
-            // Skip forward 15 seconds
-            console.log('Skip forward 15s');
+            audioPlayer.currentTime += 15;
         }
 
         function skipBackward() {
-            // Skip backward 15 seconds
-            console.log('Skip backward 15s');
+            audioPlayer.currentTime -= 15;
         }
+
+        // Handle audio ended
+        audioPlayer.addEventListener('ended', () => {
+            isPlaying = false;
+            playButton.textContent = '▶';
+        });
+
+        document.addEventListener('mouseup', function(event) {
+            clearTimeout(selectionTimeout);
+            
+            selectionTimeout = setTimeout(() => {
+                const selectedText = window.getSelection().toString().trim();
+                
+                if (selectedText && selectedText !== lastSelectedText) {
+                    lastSelectedText = selectedText;
+                    
+                    chrome.runtime.sendMessage({
+                        type: 'textSelected',
+                        text: selectedText,
+                        x: event.clientX,
+                        y: event.clientY
+                    });
+                }
+            }, 200);
+        });
+
+        audioPlayer.addEventListener('error', (error) => {
+            console.error('Audio error:', audioPlayer.error);
+            playButton.textContent = '❌';
+            speedButton.textContent = 'Error';
+        });
     </script>
 </body>
 </html> 

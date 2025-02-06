@@ -4,9 +4,9 @@
   "version": "1.0",
   "description": "Convert selected text to speech with a modern interface",
   "permissions": [
-    "contextMenus",
     "storage",
-    "activeTab"
+    "activeTab",
+    "contextMenus"
   ],
   "host_permissions": [
     "http://localhost:5000/*"
@@ -22,8 +22,9 @@
   ],
   "action": {
     "default_icon": {
-      "48": "icon48.png",
-      "128": "icon128.png"
-    }
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    },
+    "default_popup": "popup.html"
   }
 } 
